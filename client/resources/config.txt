@@ -1,0 +1,2 @@
+window_size=797x555+685+342
+language=pl
