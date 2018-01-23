@@ -1,2 +1,4 @@
-window_size=797x555+685+342
+window_size=655x809+841+91
 language=pl
+nickname=Darek5555
+server_url=http://localhost:8080/
