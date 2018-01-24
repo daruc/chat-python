@@ -89,7 +89,7 @@ def main():
     text_area = tkinter.Text(root, state=tkinter.DISABLED)
     text_area.grid(row=3, column=0, columnspan=3)
 
-    input_area = tkinter.Text(root)
+    input_area = tkinter.Text(root, height=10)
     input_area.grid(row=4, column=0, columnspan=3)
 
     def on_sending():
