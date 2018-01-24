@@ -1,0 +1,7 @@
+port=8080
+rooms_number=5
+room_name#1=Pokój 1
+room_name#2=Pokój 2
+room_name#3=Pokój 3
+room_name#4=Pokój 4
+room_name#5=Pokój 5

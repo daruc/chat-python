@@ -42,21 +42,42 @@ def main():
     nick_change_button = tkinter.Button(root, text=nick_change_str, command=on_nick_change)
     nick_change_button.grid(row=0, column=2)
 
+    room_str = strings_register['room_label']
+    room_label = tkinter.Label(root, text=room_str)
+    room_label.grid(row=1, column=0)
+
+    room_names_list = client.get_rooms()
+    room_number = 1
+
+    def on_selecting(value):
+        print(value)
+        for idx, room in enumerate(room_names_list):
+            if room == value:
+                nonlocal room_number
+                room_number = idx + 1
+                break
+        refresh()
+
+    default_room = tkinter.StringVar(root)
+    default_room.set(room_names_list[0])
+    rooms_list = tkinter.OptionMenu(root, default_room, *room_names_list, command=on_selecting)
+    rooms_list.grid(row=1, column=1)
+
     text_area = tkinter.Text(root, state=tkinter.DISABLED)
-    text_area.grid(row=3, column=0, columnspan=3)
+    text_area.grid(row=2, column=0, columnspan=3)
 
     input_area = tkinter.Text(root)
-    input_area.grid(row=4, column=0, columnspan=3)
+    input_area.grid(row=3, column=0, columnspan=3)
 
     def on_sending():
         message = input_area.get('1.0', tkinter.END)
-        client.send(message)
+        client.send(room_number, message)
         input_area.delete(1.0, tkinter.END)
         root.after(200, refresh)
 
     send_str = strings_register['send_button']
     send_button = tkinter.Button(root, text=send_str, command=on_sending)
-    send_button.grid(row=5, column=0, columnspan=3)
+    send_button.grid(row=4, column=0, columnspan=3)
 
     def on_closing():
         config_register['window_size'] = root.geometry()
@@ -65,9 +86,8 @@ def main():
 
     root.protocol('WM_DELETE_WINDOW', on_closing)
 
-
     def refresh():
-        new_content = client.get()
+        new_content = client.get(room_number)
         current_content = text_area.get("1.0", tkinter.END)
 
         if new_content.strip() != current_content.strip():

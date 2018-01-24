@@ -2,3 +2,4 @@ main_window_title=Czat
 send_button=Wyślij
 nickname=Nazwa
 nick_change_button=Zmień
+room_label=Pokój
