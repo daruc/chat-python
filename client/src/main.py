@@ -22,7 +22,7 @@ def main():
 
     window_size = config_register['window_size']
     root.geometry(window_size)
-    main_window = MainWindow(strings_register)
+    MainWindow(strings_register)
 
     language_str = strings_register['language_label']
     language_label = tkinter.Label(root, text=language_str)

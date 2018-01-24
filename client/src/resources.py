@@ -1,6 +1,7 @@
 import os
 import re
 
+
 class StringsRegister(dict):
 
     def __init__(self, language):
