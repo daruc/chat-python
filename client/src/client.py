@@ -3,6 +3,8 @@ from resources import ConfigRegister
 
 
 def send(room_number, message):
+    """Sends message to room."""
+
     config_register = ConfigRegister.get_instance()
     nickname = config_register['nickname']
     nickname_length = len(nickname.encode('utf-8'))
@@ -17,6 +19,8 @@ def send(room_number, message):
 
 
 def get(room_number):
+    """Gets chat from server."""
+
     config_register = ConfigRegister.get_instance()
     server_url = config_register['server_url'] + 'rooms/' + str(room_number)
 
@@ -25,6 +29,8 @@ def get(room_number):
 
 
 def get_rooms():
+    """Returns list of available rooms on the server."""
+
     config_register = ConfigRegister.get_instance()
     server_url = config_register['server_url'] + 'rooms'
 

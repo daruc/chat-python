@@ -3,23 +3,40 @@ import socketserver
 import re
 from room import Room
 from resources import ConfigRegister
+import argparse
+
+# server options
+argparser = argparse.ArgumentParser(description='Chat server')
+argparser.add_argument('--port', type=int)
+argparser.add_argument('--rooms', type=str, nargs='+')
+args = argparser.parse_args()
 
 config_register = ConfigRegister.get_instance()
 
-PORT = int(config_register['port'])
+if args.port:
+    global PORT
+    PORT = args.port
+else:
+    PORT = int(config_register['port'])
 
-rooms_number = int(config_register['rooms_number'])
+if args.rooms:
+    global rooms_number
+    global rooms
+    rooms_number = len(args.rooms)
+    rooms = [Room(room_name) for room_name in args.rooms]
+    print(rooms)
+else:
+    rooms_number = int(config_register['rooms_number'])
+    rooms = []
+    for room_number in range(1, rooms_number + 1):
+        room_name = config_register['room_name#' + str(room_number)]
+        room = Room(room_name)
+        rooms.append(room)
 
-rooms = []
 
-for room_number in range(1, rooms_number + 1):
-    room_name = config_register['room_name#' + str(room_number)]
-    room = Room(room_name)
-    rooms.append(room)
-
-
-def get_room(room_number):
-    return rooms[int(room_number) - 1]
+def get_room(n_rooms):
+    """Returns room object by number from 1"""
+    return rooms[int(n_rooms) - 1]
 
 
 class RequestHandler(http.server.BaseHTTPRequestHandler):
@@ -35,10 +52,10 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
     def _get_messages(self):
         print('get_messages()')
         match_obj = re.match(r'.*/rooms/(.*)', self.path)
-        room_number = match_obj.group(1)
-        print(room_number)
-        room = get_room(room_number)
-        all_messages = room.messages_to_string()
+        n_room = match_obj.group(1)
+        print(n_room)
+        source_room = get_room(n_room)
+        all_messages = source_room.messages_to_string()
         all_messages_encoded = all_messages.encode('utf-8')
 
         self.send_response(200)
@@ -57,13 +74,16 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(rooms_str)
 
     def _choose_get_method(self):
-        print(self.path)
+        """Returns appropriate method which have to serve request by given path."""
+
         if re.search(r'^/rooms$', self.path):
             return self._get_rooms
         elif re.search(r'^/rooms/.+$', self.path):
             return self._get_messages
 
     def do_POST(self):
+        """Adds new message to appropriate room."""
+
         data_length = int(self.headers['Content-Length'])
         nickname_length = int(self.headers['Nickname-Length'])
         message_length = data_length - nickname_length
@@ -77,8 +97,8 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
         print(message)
 
         match_obj = re.match(r'^/rooms/(.+)$', self.path)
-        room = get_room(match_obj.group(1))
-        room.add_message(nickname, message)
+        destination_room = get_room(match_obj.group(1))
+        destination_room.add_message(nickname, message)
 
         self.send_response(200)
         self.end_headers()
@@ -87,4 +107,4 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
 
 with socketserver.TCPServer(('', PORT), RequestHandler) as httpd:
     print('Serving at port ', PORT)
-    httpd.serve_forever()
+    httpd.serve_forever()   # Server's main loop

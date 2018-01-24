@@ -2,6 +2,7 @@ class ConfigRegister(dict):
     __instance = None
 
     def __init__(self):
+        super().__init__()
         file = open('../resources/config.txt')
 
         for line in file:

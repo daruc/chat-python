@@ -5,6 +5,7 @@ import re
 class StringsRegister(dict):
 
     def __init__(self, language):
+        super().__init__()
         self.language = language
 
         path = '../resources/strings-' + language + '.txt'
@@ -19,6 +20,7 @@ class ConfigRegister(dict):
     __instance = None
 
     def __init__(self):
+        super().__init__()
         file = open('../resources/config.txt')
 
         for line in file:
