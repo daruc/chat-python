@@ -1,0 +1,6 @@
+main_window_title=Chat
+send_button=Send
+nickname=Nickname
+nick_change_button=Change
+room_label=Room
+language_label=Language

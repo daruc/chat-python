@@ -1,4 +1,4 @@
-window_size=632x809+841+91
-language=pl
-nickname=Darek
+window_size=632x809+756+183
+language=en
+nickname=Darek2
 server_url=http://localhost:8080/

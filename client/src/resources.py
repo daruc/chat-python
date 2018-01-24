@@ -1,3 +1,6 @@
+import os
+import re
+
 class StringsRegister(dict):
 
     def __init__(self, language):
@@ -22,6 +25,22 @@ class ConfigRegister(dict):
             self[key.strip()] = value.strip()
 
         file.close()
+
+    def __getitem__(self, item):
+        if item == 'languages_list':
+            return self._get_available_languages()
+        return dict(self)[item]
+
+    @staticmethod
+    def _get_available_languages():
+        files = os.listdir('../resources/')
+        result = []
+        for file in files:
+            if re.search(r'^strings-.*\.txt$', file):
+                match_obj = re.match(r'^strings-(.*)\.txt$', file)
+                language = match_obj.group(1)
+                result.append(language)
+        return result
 
     def save(self):
         file = open('../resources/config.txt', 'w')
