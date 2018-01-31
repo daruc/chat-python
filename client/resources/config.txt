@@ -1,4 +1,4 @@
 window_size=574x638+910+294
 language=pl
-nickname=Darek4
+nickname=Nick123
 server_url=http://localhost:8080/

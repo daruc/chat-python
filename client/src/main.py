@@ -1,9 +1,10 @@
 """Main module of the client application.
 Creates GUI and invokes back-end modules."""
 
+import argparse
 import tkinter
-from tkinter import messagebox
-from requests.exceptions import ConnectionError
+import tkinter.messagebox
+import requests.exceptions
 from resources import StringsRegister
 from resources import ConfigRegister
 import client
@@ -14,6 +15,12 @@ def main():
 
     config_register = ConfigRegister.get_instance()
     strings_register = StringsRegister(config_register['language'])
+
+    arg_parser = argparse.ArgumentParser(description='Chat client')
+    arg_parser.add_argument('--server', type=str)
+    arg_parser.add_argument('--lang', type=str)
+    arg_parser.add_argument('--nick', type=str)
+    update_configuration(arg_parser.parse_args(), config_register)
 
     root = tkinter.Tk()
 
@@ -82,7 +89,7 @@ def main():
 
     try:
         room_names_list = client.get_rooms()
-    except ConnectionError:
+    except requests.exceptions.ConnectionError:
         root.withdraw()
         tkinter.messagebox.showerror(strings_register['connection_error'],
                                      strings_register['cannot_get_rooms_error'])
@@ -102,9 +109,8 @@ def main():
                 break
         refresh()
 
-    default_room = tkinter.StringVar(root)
-    default_room.set(room_names_list[0])
-    widgets['rooms_list'] = tkinter.OptionMenu(root, default_room, *room_names_list,
+    widgets['rooms_list'] = tkinter.OptionMenu(root, create_room_string(root, room_names_list),
+                                               *room_names_list,
                                                command=on_selecting)
     widgets['rooms_list'].grid(row=3, column=1)
 
@@ -121,7 +127,7 @@ def main():
 
         try:
             client.send(room_number, message)
-        except ConnectionError:
+        except requests.exceptions.ConnectionError:
             tkinter.messagebox.showerror(strings_register['connection_error'],
                                          strings_register['cannot_send_message_error'])
             print(strings_register['connection_error'] + ': ' +
@@ -148,7 +154,7 @@ def main():
 
         try:
             new_content = client.get(room_number)
-        except ConnectionError:
+        except requests.exceptions.ConnectionError:
             tkinter.messagebox.showerror(strings_register['connection_error'],
                                          strings_register['cannot_refresh_chat_error'])
             print(strings_register['connection_error'] + ': ' +
@@ -177,6 +183,24 @@ def main():
     root.mainloop()
 
 
+def update_configuration(args, config_register):
+    """Updates configuration file if any settings were given."""
+
+    save_configuration = False
+    if args.server:
+        config_register['server_url'] = args.server
+        save_configuration = True
+    if args.lang:
+        config_register['language'] = args.lang
+        save_configuration = True
+    if args.nick:
+        config_register['nickname'] = args.nick
+        save_configuration = True
+
+    if save_configuration:
+        config_register.save()
+
+
 def create_main_frame(strings_register, root):
     """Creates main application window and sets title."""
 
@@ -197,6 +221,14 @@ def create_server_string(config_register):
     server_string = tkinter.StringVar()
     server_string.set(config_register['server_url'])
     return server_string
+
+
+def create_room_string(root, room_names_list):
+    """Creates tkinter.StringVar with default room name."""
+
+    default_room = tkinter.StringVar(root)
+    default_room.set(room_names_list[0])
+    return default_room
 
 
 def create_nickname_label(strings_register, config_register):
