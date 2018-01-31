@@ -8,7 +8,7 @@ class ConfigRegister(dict):
 
     def __init__(self):
         super().__init__()
-        file = open('../resources/config.txt')
+        file = open('../resources/config.txt', 'r', encoding='utf-8')
 
         for line in file:
             key, value = line.split('=')
@@ -19,7 +19,7 @@ class ConfigRegister(dict):
     def save(self):
         """Saves configuration from memory to disc."""
 
-        file = open('../resources/config.txt', 'w')
+        file = open('../resources/config.txt', 'w', encoding='utf-8')
 
         for key, value in self.items():
             file.write(key + '=' + value + '\n')
