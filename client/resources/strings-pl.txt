@@ -4,3 +4,5 @@ nickname=Nazwa
 nick_change_button=Zmień
 room_label=Pokój
 language_label=Język
+server_label=Serwer
+server_change_button=Zmień

@@ -20,8 +20,29 @@ def main():
 
     widgets = dict()
 
+    widgets['server_label'] = tkinter.Label(root,
+                                            text=create_server_label(strings_register,
+                                                                     config_register))
+    widgets['server_label'].grid(row=0, column=0)
+
+    widgets['server_entry'] = tkinter.Entry(root,
+                                            textvariable=create_server_string(config_register))
+    widgets['server_entry'].grid(row=0, column=1)
+
+    def on_server_change():
+        """Changes server URL, saves new configuration"""
+
+        config_register['server_url'] = widgets['server_entry'].get()
+        config_register.save()
+        widgets['server_label']['text'] = create_server_label(strings_register, config_register)
+
+    widgets['server_change_button'] = tkinter.Button(root,
+                                                     text=strings_register['server_change_button'],
+                                                     command=on_server_change)
+    widgets['server_change_button'].grid(row=0, column=2)
+
     widgets['language_label'] = tkinter.Label(root, text=strings_register['language_label'])
-    widgets['language_label'].grid(row=0, column=0)
+    widgets['language_label'].grid(row=1, column=0)
 
     def on_language_change_adapter(value):
         """Invokes changing language"""
@@ -32,14 +53,14 @@ def main():
                                                    *config_register['languages_list'],
                                                    command=on_language_change_adapter)
 
-    widgets['languages_list'].grid(row=0, column=1)
+    widgets['languages_list'].grid(row=1, column=1)
 
     widgets['nick_label'] = tkinter.Label(root, text=create_nickname_label(strings_register,
                                                                            config_register))
-    widgets['nick_label'].grid(row=1, column=0)
+    widgets['nick_label'].grid(row=2, column=0)
 
     widgets['nick_entry'] = tkinter.Entry(root, textvariable=create_nick_string(config_register))
-    widgets['nick_entry'].grid(row=1, column=1)
+    widgets['nick_entry'].grid(row=2, column=1)
 
     def on_nick_change():
         """Changes users nickname."""
@@ -51,10 +72,10 @@ def main():
     widgets['nick_change_button'] = tkinter.Button(root,
                                                    text=strings_register['nick_change_button'],
                                                    command=on_nick_change)
-    widgets['nick_change_button'].grid(row=1, column=2)
+    widgets['nick_change_button'].grid(row=2, column=2)
 
     widgets['room_label'] = tkinter.Label(root, text=strings_register['room_label'])
-    widgets['room_label'].grid(row=2, column=0)
+    widgets['room_label'].grid(row=3, column=0)
 
     room_names_list = client.get_rooms()
     room_number = 1
@@ -73,13 +94,13 @@ def main():
     default_room.set(room_names_list[0])
     widgets['rooms_list'] = tkinter.OptionMenu(root, default_room, *room_names_list,
                                                command=on_selecting)
-    widgets['rooms_list'].grid(row=2, column=1)
+    widgets['rooms_list'].grid(row=3, column=1)
 
     widgets['text_area'] = tkinter.Text(root, state=tkinter.DISABLED)
-    widgets['text_area'].grid(row=3, column=0, columnspan=3)
+    widgets['text_area'].grid(row=4, column=0, columnspan=3)
 
     widgets['input_area'] = tkinter.Text(root, height=10)
-    widgets['input_area'].grid(row=4, column=0, columnspan=3)
+    widgets['input_area'].grid(row=5, column=0, columnspan=3)
 
     def on_sending():
         """Sends message to server."""
@@ -91,7 +112,7 @@ def main():
 
     widgets['send_button'] = tkinter.Button(root, text=strings_register['send_button'],
                                             command=on_sending)
-    widgets['send_button'].grid(row=5, column=0, columnspan=3)
+    widgets['send_button'].grid(row=6, column=0, columnspan=3)
 
     def on_closing():
         """Saves configuration and closes application."""
@@ -133,6 +154,20 @@ def create_main_frame(strings_register, root):
     return main_window
 
 
+def create_server_label(strings_register, config_register):
+    """Returns joined \"Server: \" with server URL."""
+
+    return strings_register['server_label'] + ': ' + config_register['server_url']
+
+
+def create_server_string(config_register):
+    """Creates tkinter.StringVar with selected server address."""
+
+    server_string = tkinter.StringVar()
+    server_string.set(config_register['server_url'])
+    return server_string
+
+
 def create_nickname_label(strings_register, config_register):
     """Returns joined \"Nickname: \" with user's nickname."""
 
@@ -161,6 +196,8 @@ def on_language_change(config_register, widgets, root, value):
     config_register['language'] = value
     config_register.save()
     strings_register = StringsRegister(value)
+    widgets['server_label']['text'] = create_server_label(strings_register, config_register)
+    widgets['server_change_button']['text'] = strings_register['server_change_button']
     widgets['language_label']['text'] = strings_register['language_label']
     widgets['nick_label']['text'] = \
         strings_register['nickname'] + ': ' + config_register['nickname']
