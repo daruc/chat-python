@@ -6,3 +6,7 @@ room_label=Pokój
 language_label=Język
 server_label=Serwer
 server_change_button=Zmień
+connection_error=Błąd połączenia
+cannot_get_rooms_error=Nie można pobrać listy dostępnych pokoi ze serwera.
+cannot_refresh_chat_error=Nie można odświeżyć czatu.
+cannot_send_message_error=Nie można wysłać wiadomości do serwera.

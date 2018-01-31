@@ -6,3 +6,7 @@ room_label=Room
 language_label=Language
 server_label=Server
 server_change_button=Change
+connection_error=Connection error
+cannot_get_rooms_error=Cannot get available rooms list from server.
+cannot_refresh_chat_error=Cannot refresh chat.
+cannot_send_message_error=Cannot send message to server.

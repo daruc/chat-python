@@ -2,6 +2,8 @@
 Creates GUI and invokes back-end modules."""
 
 import tkinter
+from tkinter import messagebox
+from requests.exceptions import ConnectionError
 from resources import StringsRegister
 from resources import ConfigRegister
 import client
@@ -35,6 +37,7 @@ def main():
         config_register['server_url'] = widgets['server_entry'].get()
         config_register.save()
         widgets['server_label']['text'] = create_server_label(strings_register, config_register)
+        refresh()
 
     widgets['server_change_button'] = tkinter.Button(root,
                                                      text=strings_register['server_change_button'],
@@ -77,7 +80,16 @@ def main():
     widgets['room_label'] = tkinter.Label(root, text=strings_register['room_label'])
     widgets['room_label'].grid(row=3, column=0)
 
-    room_names_list = client.get_rooms()
+    try:
+        room_names_list = client.get_rooms()
+    except ConnectionError:
+        root.withdraw()
+        tkinter.messagebox.showerror(strings_register['connection_error'],
+                                     strings_register['cannot_get_rooms_error'])
+        print(strings_register['connection_error'] + ': ' +
+              strings_register['cannot_get_rooms_error'])
+        exit(1)
+
     room_number = 1
 
     def on_selecting(value):
@@ -106,7 +118,15 @@ def main():
         """Sends message to server."""
 
         message = widgets['input_area'].get('1.0', tkinter.END)
-        client.send(room_number, message)
+
+        try:
+            client.send(room_number, message)
+        except ConnectionError:
+            tkinter.messagebox.showerror(strings_register['connection_error'],
+                                         strings_register['cannot_send_message_error'])
+            print(strings_register['connection_error'] + ': ' +
+                  strings_register['cannot_send_message_error'])
+
         widgets['input_area'].delete(1.0, tkinter.END)
         root.after(200, refresh)
 
@@ -126,21 +146,32 @@ def main():
     def refresh():
         """Refreshes state of the chat of the current room."""
 
-        new_content = client.get(room_number)
-        current_content = widgets['text_area'].get("1.0", tkinter.END)
+        try:
+            new_content = client.get(room_number)
+        except ConnectionError:
+            tkinter.messagebox.showerror(strings_register['connection_error'],
+                                         strings_register['cannot_refresh_chat_error'])
+            print(strings_register['connection_error'] + ': ' +
+                  strings_register['cannot_refresh_chat_error'])
+            return False
+        else:
+            current_content = widgets['text_area'].get("1.0", tkinter.END)
 
-        if new_content.strip() != current_content.strip():
-            widgets['text_area'].config(state=tkinter.NORMAL)
-            widgets['text_area'].delete("1.0", tkinter.END)
-            widgets['text_area'].insert(tkinter.END, new_content)
-            widgets['text_area'].see(tkinter.END)
-            widgets['text_area'].config(state=tkinter.DISABLED)
+            if new_content.strip() != current_content.strip():
+                widgets['text_area'].config(state=tkinter.NORMAL)
+                widgets['text_area'].delete("1.0", tkinter.END)
+                widgets['text_area'].insert(tkinter.END, new_content)
+                widgets['text_area'].see(tkinter.END)
+                widgets['text_area'].config(state=tkinter.DISABLED)
+            return True
 
     def repeat_refresh():
         """Plans new invoke of the refresh function."""
 
-        refresh()
-        root.after(1300, repeat_refresh)
+        if refresh():
+            root.after(1300, repeat_refresh)
+        else:
+            root.after(15000, repeat_refresh)
 
     root.after(0, repeat_refresh)
     root.mainloop()
