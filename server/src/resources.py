@@ -1,4 +1,9 @@
+"""Provides definition of configuration register."""
+
+
 class ConfigRegister(dict):
+    """Singleton containing server configurations."""
+
     __instance = None
 
     def __init__(self):
@@ -12,6 +17,8 @@ class ConfigRegister(dict):
         file.close()
 
     def save(self):
+        """Saves configuration from memory to disc."""
+
         file = open('../resources/config.txt', 'w')
 
         for key, value in self.items():
@@ -20,6 +27,8 @@ class ConfigRegister(dict):
 
     @classmethod
     def get_instance(cls):
+        """Returns singleton of this class."""
+
         if ConfigRegister.__instance is None:
             ConfigRegister.__instance = ConfigRegister()
 

@@ -1,8 +1,11 @@
+"""Provides definitions of resources and configuration registers."""
+
 import os
 import re
 
 
 class StringsRegister(dict):
+    """Contains labels for each language which are showing in UI."""
 
     def __init__(self, language):
         super().__init__()
@@ -17,6 +20,8 @@ class StringsRegister(dict):
 
 
 class ConfigRegister(dict):
+    """Singleton containing application configurations."""
+
     __instance = None
 
     def __init__(self):
@@ -36,6 +41,8 @@ class ConfigRegister(dict):
 
     @staticmethod
     def _get_available_languages():
+        """Looking for strings-*.txt files and returns language suffixes."""
+
         files = os.listdir('../resources/')
         result = []
         for file in files:
@@ -46,6 +53,8 @@ class ConfigRegister(dict):
         return result
 
     def save(self):
+        """Saves configuration from memory to disc."""
+
         file = open('../resources/config.txt', 'w')
 
         for key, value in self.items():
@@ -54,6 +63,8 @@ class ConfigRegister(dict):
 
     @classmethod
     def get_instance(cls):
+        """Returns instance of ConfigRegister."""
+
         if ConfigRegister.__instance is None:
             ConfigRegister.__instance = ConfigRegister()
 
